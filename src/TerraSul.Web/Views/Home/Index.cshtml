@@ -1,0 +1,258 @@
+﻿@model TerraSul.Web.Models.HomeViewModel
+@{
+    ViewData["Title"] = "Imóveis de alto padrão em Balsas";
+    ViewData["BodyClass"] = "page-home";
+    var heroes = new[]
+    {
+        // Real photos from @imobiliariaterrasulbls. Portrait frames, so the hero is a light
+        // split: words on ivory, the house as a tall framed picture beside them.
+        ("/img/real/prime-ville-hidro.webp", "Arquitetura que", "define um legado", "Residências em Balsas · Sul do Maranhão"),
+        ("/img/real/prime-rio-portal.webp", "Prime Rio", "Residence", "Terrenos com entrada a partir de 5%"),
+        ("/img/real/prime-ville-piscina-privativa.webp", "Casas prontas", "no Prime Ville", "3 e 4 suítes, piscina e lazer completo"),
+    };
+}
+
+<section class="hero hero--split">
+    <div class="swiper hero__swiper" id="heroSwiper">
+        <div class="swiper-wrapper">
+            @foreach (var h in heroes)
+            {
+                <div class="swiper-slide hero__slide">
+                    <div class="container hero__split">
+                        <div class="hero__text">
+                            <span class="eyebrow" data-swiper-parallax="-100">@h.Item4</span>
+                            <h1 class="hero__title" data-swiper-parallax="-200">@h.Item2 <em>@h.Item3</em></h1>
+                            <div class="hero__cta" data-swiper-parallax="-300">
+                                <a class="btn btn--gold" asp-controller="Imoveis" asp-action="Index">Explorar imóveis</a>
+                                <a class="btn btn--outline" href="@SiteInfo.WhatsAppLink("Olá, Terra Sul! Gostaria de agendar uma visita.")" target="_blank" rel="noopener">Agendar visita</a>
+                            </div>
+                        </div>
+                        <div class="hero__photo" data-swiper-parallax="-60">
+                            <img src="@h.Item1" alt="@h.Item2 @h.Item3" />
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="hero__ui container">
+            <div class="hero__count"><span class="hero__cur">01</span><i></i><span class="hero__tot">0@(heroes.Length)</span></div>
+            <div class="hero__nav">
+                <button class="hero__prev" aria-label="Anterior"><svg class="ico" style="transform:rotate(180deg)"><use href="#i-arrow" /></svg></button>
+                <div class="hero__progress"><span></span></div>
+                <button class="hero__next" aria-label="Próximo"><svg class="ico"><use href="#i-arrow" /></svg></button>
+            </div>
+        </div>
+        <a class="hero__scroll" href="#busca"><span></span>Descer</a>
+    </div>
+
+    <form class="search-bar container" id="busca" asp-controller="Imoveis" asp-action="Index" method="get">
+        <div class="search-bar__toggle">
+            <label><input type="radio" name="finalidade" value="Venda" checked /><span>Comprar</span></label>
+            <label><input type="radio" name="finalidade" value="Aluguel" /><span>Alugar</span></label>
+        </div>
+        <div class="search-bar__field">
+            <label>Tipo</label>
+            <select name="tipo">
+                <option value="">Todos</option>
+                @foreach (var t in Enum.GetValues<PropertyType>()) { <option value="@t">@t</option> }
+            </select>
+        </div>
+        <div class="search-bar__field">
+            <label>Bairro / Condomínio</label>
+            <select name="bairro">
+                <option value="">Todos</option>
+                @foreach (var n in Model.Neighborhoods) { <option value="@n">@n</option> }
+            </select>
+        </div>
+        <div class="search-bar__field">
+            <label>Quartos</label>
+            <select name="quartos">
+                <option value="">Qualquer</option>
+                <option value="2">2+</option><option value="3">3+</option><option value="4">4+</option><option value="5">5+</option>
+            </select>
+        </div>
+        <button class="btn btn--gold search-bar__btn" type="submit">Buscar <svg class="ico"><use href="#i-arrow" /></svg></button>
+    </form>
+</section>
+
+<section class="stats">
+    <div class="container stats__grid">
+        <div class="stat" data-aos="fade-up"><strong data-count="20" data-prefix="+">0</strong><span>anos de mercado</span></div>
+        <div class="stat" data-aos="fade-up" data-aos-delay="100"><strong data-count="180" data-suffix="x">0</strong><span>parcelas para o seu terreno</span></div>
+        <div class="stat" data-aos="fade-up" data-aos-delay="200"><strong data-count="19.5" data-suffix="K" data-decimals="1">0</strong><span>seguidores no Instagram</span></div>
+        <div class="stat" data-aos="fade-up" data-aos-delay="300"><strong>J-230</strong><span>CRECI · corretora credenciada</span></div>
+    </div>
+</section>
+
+<section class="section section--featured">
+    <div class="container">
+        <div class="section__head">
+            <div>
+                <span class="eyebrow">Seleção Terra Sul</span>
+                <h2 class="h2">Imóveis em <em>destaque</em></h2>
+            </div>
+            <div class="section__tools">
+                <div class="swiper-nav"><button class="feat-prev" aria-label="Anterior"><svg class="ico" style="transform:rotate(180deg)"><use href="#i-arrow" /></svg></button><button class="feat-next" aria-label="Próximo"><svg class="ico"><use href="#i-arrow" /></svg></button></div>
+                <a class="link-arrow" asp-controller="Imoveis" asp-action="Index">Ver todos <svg class="ico"><use href="#i-arrow" /></svg></a>
+            </div>
+        </div>
+    </div>
+    <div class="swiper featured__swiper" id="featuredSwiper">
+        <div class="swiper-wrapper">
+            @foreach (var p in Model.Featured)
+            {
+                <div class="swiper-slide"><partial name="_PropertyCard" model="p" /></div>
+            }
+        </div>
+        <div class="swiper-scrollbar featured__scrollbar"></div>
+    </div>
+</section>
+
+<section class="section section--dark devs" style="--bg:url('/img/mood/luz-textura.webp')">
+    <div class="container">
+        <div class="section__head section__head--center" data-aos="fade-up">
+            <span class="eyebrow">Empreendimentos</span>
+            <h2 class="h2">Endereços <em>assinados</em> Terra Sul</h2>
+        </div>
+        <div class="tabs" id="devTabs">
+            <div class="tabs__nav" role="tablist">
+                @for (var i = 0; i < Model.Developments.Count; i++)
+                {
+                    var d = Model.Developments[i];
+                    <button role="tab" class="@(i == 0 ? "is-active" : "")" data-tab="@d.Slug" aria-selected="@(i == 0 ? "true" : "false")"><span>0@(i + 1)</span>@d.Name</button>
+                }
+                <span class="tabs__ink"></span>
+            </div>
+            @for (var i = 0; i < Model.Developments.Count; i++)
+            {
+                var d = Model.Developments[i];
+                <div class="tabs__panel @(i == 0 ? "is-active" : "")" data-panel="@d.Slug" role="tabpanel">
+                    <div class="dev">
+                        <a class="dev__media" href="/empreendimentos/@d.Slug">
+                            <img src="@d.Cover" alt="@d.Name" loading="lazy" />
+                            <span class="badge badge--gold">@d.Status</span>
+                        </a>
+                        <div class="dev__body">
+                            <span class="eyebrow">@d.Location</span>
+                            <h3 class="h3">@d.Name</h3>
+                            <p class="lead">@d.Tagline</p>
+                            <p>@d.Description</p>
+                            <ul class="checklist checklist--2">
+                                @foreach (var h in d.Highlights) { <li><svg class="ico"><use href="#i-check" /></svg>@h</li> }
+                            </ul>
+                            <div class="dev__foot">
+                                @if (d.Conditions is { } cond) { <div><small>Condições</small><strong class="dev-cond">@cond</strong></div> }
+                                <a class="btn btn--gold" href="/empreendimentos/@d.Slug">Conhecer @d.Name</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section lifestyle">
+    <div class="container">
+        <div class="section__head" data-aos="fade-up">
+            <div>
+                <span class="eyebrow">Lifestyle</span>
+                <h2 class="h2">Morar bem é um <em>detalhe</em> de cada vez</h2>
+            </div>
+            <p class="section__lead">Fotos reais de imóveis que a Terra Sul vende e entrega em Balsas.</p>
+        </div>
+        <div class="mosaic">
+            <a class="mosaic__item mosaic__item--tall glightbox" data-gallery="life" href="/img/real/casa-pergolado-piscina.webp" data-aos="zoom-in"><img src="/img/real/casa-pergolado-piscina.webp" alt="Piscina e pergolado" loading="lazy" /><span>Lazer</span></a>
+            <a class="mosaic__item glightbox" data-gallery="life" href="/img/real/interior-jantar.webp" data-aos="zoom-in" data-aos-delay="50"><img src="/img/real/interior-jantar.webp" alt="Sala de jantar" loading="lazy" /><span>Interiores</span></a>
+            <a class="mosaic__item mosaic__item--tall glightbox" data-gallery="life" href="/img/real/prime-ville-hidro.webp" data-aos="zoom-in" data-aos-delay="100"><img src="/img/real/prime-ville-hidro.webp" alt="Fachada" loading="lazy" /><span>Fachadas</span></a>
+            <a class="mosaic__item glightbox" data-gallery="life" href="/img/real/interior-entrada.webp" data-aos="zoom-in" data-aos-delay="150"><img src="/img/real/interior-entrada.webp" alt="Hall de entrada" loading="lazy" /><span>Acabamentos</span></a>
+            <a class="mosaic__item glightbox" data-gallery="life" href="/img/real/apartamento-centro.webp" data-aos="zoom-in" data-aos-delay="200"><img src="/img/real/apartamento-centro.webp" alt="Sala" loading="lazy" /><span>Salas</span></a>
+            <a class="mosaic__item glightbox" data-gallery="life" href="/img/real/fachada-pedra-madeira.webp" data-aos="zoom-in" data-aos-delay="250"><img src="/img/real/fachada-pedra-madeira.webp" alt="Fachada em pedra e madeira" loading="lazy" /><span>Projetos</span></a>
+            <a class="mosaic__item mosaic__item--tall glightbox" data-gallery="life" href="/img/real/prime-rio-piscina.webp" data-aos="zoom-in" data-aos-delay="300"><img src="/img/real/prime-rio-piscina.webp" alt="Piscina" loading="lazy" /><span>Piscinas</span></a>
+            <a class="mosaic__item mosaic__item--wide glightbox" data-gallery="life" href="/img/real/fachada-madeira.webp" data-aos="zoom-in" data-aos-delay="350"><img src="/img/real/fachada-madeira.webp" alt="Fachada" loading="lazy" /><span>Casas prontas</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="section about-teaser">
+    <div class="container about-teaser__grid">
+        <div class="about-teaser__media" data-aos="fade-right">
+            <img src="/img/real/paulo-teixeira.webp" alt="Paulo Teixeira, consultor imobiliário da Terra Sul" loading="lazy" />
+            <div class="about-teaser__card">
+                <strong>+20</strong><span>anos realizando sonhos no Sul do Maranhão</span>
+            </div>
+        </div>
+        <div class="about-teaser__body" data-aos="fade-left">
+            <span class="eyebrow">A Terra Sul</span>
+            <h2 class="h2">Uma imobiliária feita para quem <em>exige mais</em></h2>
+            <p class="lead">Há mais de duas décadas em Balsas, a Terra Sul construiu reputação com um princípio simples: apresentar apenas o que vale o seu tempo.</p>
+            <p>Curadoria rigorosa, assessoria jurídica completa e atendimento reservado, do primeiro contato à entrega das chaves. É assim que ajudamos nossos clientes a realizar seus sonhos.</p>
+            <ul class="checklist">
+                <li><svg class="ico"><use href="#i-check" /></svg>Casas prontas nos condomínios Prime Ville e Prime Rio</li>
+                <li><svg class="ico"><use href="#i-check" /></svg>Terrenos com entrada a partir de 5% e até 180 parcelas</li>
+                <li><svg class="ico"><use href="#i-check" /></svg>Imóveis financiáveis e visitas no seu horário</li>
+            </ul>
+            <a class="btn btn--outline" asp-controller="Sobre" asp-action="Index">Conheça nossa história</a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--dark testimonials">
+    <div class="container">
+        <div class="section__head section__head--center" data-aos="fade-up">
+            <span class="eyebrow">Depoimentos</span>
+            <h2 class="h2">O que dizem nossos <em>clientes</em></h2>
+        </div>
+        <div class="swiper testi__swiper" id="testiSwiper">
+            <div class="swiper-wrapper">
+                @foreach (var t in Model.Testimonials)
+                {
+                    <div class="swiper-slide">
+                        <blockquote class="testi">
+                            <svg class="testi__q"><use href="#i-quote" /></svg>
+                            <p>@t.Quote</p>
+                            <footer><strong>@t.Name</strong><span>@t.Role</span></footer>
+                        </blockquote>
+                    </div>
+                }
+            </div>
+            <div class="swiper-pagination testi__pag"></div>
+        </div>
+    </div>
+</section>
+
+<section class="section insta">
+    <div class="container">
+        <div class="section__head" data-aos="fade-up">
+            <div>
+                <span class="eyebrow">Instagram</span>
+                <h2 class="h2">@SiteInfo.InstagramHandle</h2>
+            </div>
+            <a class="link-arrow" href="@SiteInfo.Instagram" target="_blank" rel="noopener">Seguir no Instagram <svg class="ico"><use href="#i-arrow" /></svg></a>
+        </div>
+    </div>
+    <div class="swiper insta__swiper" id="instaSwiper">
+        <div class="swiper-wrapper">
+            @foreach (var post in Model.Instagram)
+            {
+                <a class="swiper-slide insta__item" href="@post.Url" target="_blank" rel="noopener">
+                    <img src="@post.Image" alt="@post.Caption" loading="lazy" />
+                    <span><svg class="ico"><use href="#i-ig" /></svg>@post.Caption</span>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="cta" style="--bg:url('/img/mood/luz-arquitetura.webp')">
+    <div class="cta__bg" data-parallax></div>
+    <div class="container cta__content" data-aos="fade-up">
+        <span class="eyebrow">Atendimento reservado</span>
+        <h2 class="h1">Agende uma <em>visita privada</em></h2>
+        <p class="lead">Nossos consultores atendem no seu horário, com total discrição. Conte o que procura e deixe o resto conosco.</p>
+        <div class="cta__actions">
+            <a class="btn btn--gold btn--lg" href="@SiteInfo.WhatsAppLink("Olá, Terra Sul! Gostaria de agendar uma visita privada.")" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa" /></svg>WhatsApp @SiteInfo.WhatsAppDisplay</a>
+            <a class="btn btn--ghost btn--lg" asp-controller="Contato" asp-action="Index">Deixar meu contato</a>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,11 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Erro";
+}
+<section class="page-hero page-hero--short" style="--bg:url('/img/mood/luz-textura.webp')">
+    <div class="container">
+        <h1 class="h1">Algo saiu do <em>lugar</em></h1>
+        <p class="lead">Não foi possível concluir sua solicitação. <a href="/">Voltar ao início</a>.</p>
+        @if (Model?.ShowRequestId == true) { <small class="muted">ID: @Model.RequestId</small> }
+    </div>
+</section>

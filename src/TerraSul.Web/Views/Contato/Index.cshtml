@@ -1,0 +1,65 @@
+@model TerraSul.Web.Models.ContactForm
+@{
+    ViewData["Title"] = "Contato";
+    ViewData["BodyClass"] = "page-contact";
+}
+
+<section class="page-hero page-hero--short" style="--bg:url('/img/mood/luz-textura.webp')">
+    <div class="container">
+        <span class="eyebrow">Atendimento</span>
+        <h1 class="h1">Vamos <em>conversar</em></h1>
+        <p class="lead">Comprar, vender, alugar ou investir. Conte o que procura e um consultor retorna em instantes.</p>
+    </div>
+</section>
+
+<section class="section contact container">
+    <div class="contact__info" data-aos="fade-right">
+        <div class="contact__item">
+            <svg class="ico"><use href="#i-wa" /></svg>
+            <div><small>WhatsApp</small><a href="@SiteInfo.WhatsAppLink()" target="_blank" rel="noopener">@SiteInfo.WhatsAppDisplay</a></div>
+        </div>
+        <div class="contact__item">
+            <svg class="ico"><use href="#i-mail" /></svg>
+            <div><small>E-mail</small><a href="mailto:@SiteInfo.Email">@SiteInfo.Email</a></div>
+        </div>
+        <div class="contact__item">
+            <svg class="ico"><use href="#i-clock" /></svg>
+            <div><small>Horário</small><span>@SiteInfo.Hours</span></div>
+        </div>
+        <div class="contact__item">
+            <svg class="ico"><use href="#i-pin" /></svg>
+            <div><small>Localização</small><span>@SiteInfo.City</span></div>
+        </div>
+        <div class="contact__item">
+            <svg class="ico"><use href="#i-ig" /></svg>
+            <div><small>Instagram</small><a href="@SiteInfo.Instagram" target="_blank" rel="noopener">@SiteInfo.InstagramHandle</a></div>
+        </div>
+        <div class="map map--tall">
+            <iframe title="Mapa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Balsas,%20MA&z=13&output=embed"></iframe>
+        </div>
+    </div>
+
+    <form class="contact__form" asp-controller="Contato" asp-action="Enviar" method="post" data-aos="fade-left">
+        @Html.AntiForgeryToken()
+        <h2 class="h3">Deixe seu contato</h2>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert">@string.Join(" ", ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage))</div>
+        }
+        <div class="seg seg--wide" role="radiogroup">
+            @foreach (var opt in new[] { "Comprar", "Vender", "Alugar", "Investir" })
+            {
+                <label><input type="radio" name="Interesse" value="@opt" @(Model.Interesse == opt ? "checked" : "") /><span>@opt</span></label>
+            }
+        </div>
+        <div class="form-grid">
+            <label class="field"><span>Nome</span><input class="input" name="Nome" value="@Model.Nome" required /></label>
+            <label class="field"><span>WhatsApp</span><input class="input" name="Telefone" value="@Model.Telefone" placeholder="(99) 9 9999-9999" required /></label>
+            <label class="field"><span>E-mail</span><input class="input" type="email" name="Email" value="@Model.Email" /></label>
+            <label class="field"><span>Imóvel de interesse</span><input class="input" name="Imovel" value="@Model.Imovel" placeholder="Referência ou nome" /></label>
+            <label class="field field--full"><span>Mensagem</span><textarea class="input" name="Mensagem" rows="5">@Model.Mensagem</textarea></label>
+        </div>
+        <button class="btn btn--gold btn--lg btn--block" type="submit"><svg class="ico"><use href="#i-wa" /></svg>Enviar pelo WhatsApp</button>
+        <small class="muted">Ao enviar, você será direcionado ao WhatsApp da Terra Sul com a mensagem preenchida.</small>
+    </form>
+</section>

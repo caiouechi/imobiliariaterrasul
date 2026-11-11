@@ -1,0 +1,121 @@
+﻿@using TerraSul.Web.Models
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] is string t ? t + " · " : "")@SiteInfo.Name</title>
+    <meta name="description" content="@(ViewData["Description"] ?? "Imóveis de alto padrão em Balsas e no Sul do Maranhão. Há mais de 20 anos realizando sonhos. CRECI J-230.")" />
+    <meta property="og:title" content="@(ViewData["Title"] ?? SiteInfo.Name)" />
+    <meta property="og:image" content="@(ViewData["OgImage"] ?? "/img/real/prime-ville-hidro.webp")" />
+    <meta name="theme-color" content="#fbf9f5" />
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.1.14/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.0/glightbox.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body class="@ViewData["BodyClass"]">
+    <partial name="_Icons" />
+
+    <div class="preloader" id="preloader" aria-hidden="true">
+        <div class="preloader__mark"><partial name="_Logo" /></div>
+        <div class="preloader__bar"><span></span></div>
+    </div>
+
+    <header class="site-header" id="siteHeader">
+        <div class="container site-header__inner">
+            <a class="site-header__brand" href="/" aria-label="Início"><partial name="_Logo" /></a>
+            <nav class="site-nav" aria-label="Principal">
+                <a asp-controller="Imoveis" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Imoveis" ? "is-active" : "")">Imóveis</a>
+                <a asp-controller="Empreendimentos" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Empreendimentos" ? "is-active" : "")">Empreendimentos</a>
+                <a asp-controller="Sobre" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Sobre" ? "is-active" : "")">A Terra Sul</a>
+                <a asp-controller="Contato" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Contato" ? "is-active" : "")">Contato</a>
+            </nav>
+            <div class="site-header__actions">
+                <a class="btn btn--ghost btn--sm site-header__wa" href="@SiteInfo.WhatsAppLink("Olá, Terra Sul! Gostaria de falar com um consultor.")" target="_blank" rel="noopener">
+                    <svg class="ico"><use href="#i-wa" /></svg><span>@SiteInfo.WhatsAppDisplay</span>
+                </a>
+                <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span></button>
+            </div>
+        </div>
+    </header>
+
+    <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+        <div class="mobile-menu__bg" style="background-image:url('/img/mood/luz-textura.webp')"></div>
+        <nav class="mobile-menu__nav">
+            <a href="/"><span>01</span>Início</a>
+            <a asp-controller="Imoveis" asp-action="Index"><span>02</span>Imóveis</a>
+            <a asp-controller="Empreendimentos" asp-action="Index"><span>03</span>Empreendimentos</a>
+            <a asp-controller="Sobre" asp-action="Index"><span>04</span>A Terra Sul</a>
+            <a asp-controller="Contato" asp-action="Index"><span>05</span>Contato</a>
+        </nav>
+        <div class="mobile-menu__foot">
+            <a href="@SiteInfo.WhatsAppLink()" target="_blank" rel="noopener">@SiteInfo.WhatsAppDisplay</a>
+            <a href="@SiteInfo.Instagram" target="_blank" rel="noopener">@SiteInfo.InstagramHandle</a>
+            <small>@SiteInfo.Creci · @SiteInfo.City</small>
+        </div>
+    </div>
+
+    <main id="main">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="site-footer__top">
+                <div class="site-footer__brand">
+                    <partial name="_Logo" />
+                    <p>Há mais de 20 anos ajudando nossos clientes a realizar seus sonhos. As melhores oportunidades em imóveis do Sul do Maranhão.</p>
+                    <div class="social">
+                        <a href="@SiteInfo.Instagram" target="_blank" rel="noopener" aria-label="Instagram"><svg class="ico"><use href="#i-ig" /></svg></a>
+                        <a href="@SiteInfo.WhatsAppLink()" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="ico"><use href="#i-wa" /></svg></a>
+                    </div>
+                </div>
+                <div class="site-footer__col">
+                    <h4>Navegação</h4>
+                    <a asp-controller="Imoveis" asp-action="Index">Imóveis à venda</a>
+                    <a asp-controller="Imoveis" asp-action="Index" asp-route-finalidade="Aluguel">Imóveis para locação</a>
+                    <a asp-controller="Empreendimentos" asp-action="Index">Empreendimentos</a>
+                    <a asp-controller="Sobre" asp-action="Index">A Terra Sul</a>
+                    <a asp-controller="Contato" asp-action="Index">Anuncie seu imóvel</a>
+                </div>
+                <div class="site-footer__col">
+                    <h4>Empreendimentos</h4>
+                    <a href="/empreendimentos/prime-rio">Prime Rio</a>
+                    <a href="/empreendimentos/prime-ville">Prime Ville</a>
+                    <a href="/empreendimentos/garden-prime">Garden Prime</a>
+                </div>
+                <div class="site-footer__col">
+                    <h4>Atendimento</h4>
+                    <a href="@SiteInfo.WhatsAppLink()" target="_blank" rel="noopener"><svg class="ico"><use href="#i-phone" /></svg>@SiteInfo.WhatsAppDisplay</a>
+                    <a href="mailto:@SiteInfo.Email"><svg class="ico"><use href="#i-mail" /></svg>@SiteInfo.Email</a>
+                    <span><svg class="ico"><use href="#i-clock" /></svg>@SiteInfo.Hours</span>
+                    <span><svg class="ico"><use href="#i-pin" /></svg>@SiteInfo.City</span>
+                </div>
+            </div>
+            <div class="site-footer__bottom">
+                <span>© @DateTime.Now.Year @SiteInfo.Name · @SiteInfo.Creci</span>
+                <span>Balsas · Sul do Maranhão · Brasil</span>
+            </div>
+        </div>
+    </footer>
+
+    <a class="wa-float" href="@SiteInfo.WhatsAppLink("Olá, Terra Sul! Gostaria de mais informações.")" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+        <svg class="ico"><use href="#i-wa" /></svg>
+        <span>Fale com um consultor</span>
+    </a>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.1.14/swiper-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/glightbox/3.3.0/glightbox.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.8.1/nouislider.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

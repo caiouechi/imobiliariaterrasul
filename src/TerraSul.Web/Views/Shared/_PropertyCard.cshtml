@@ -1,0 +1,32 @@
+@model TerraSul.Web.Models.Property
+@{
+    var second = Model.Images.Count > 1 ? Model.Images[1].Url : Model.Cover.Url;
+}
+<article class="pcard" data-id="@Model.Id">
+    <a class="pcard__media" href="/imoveis/@Model.Slug" aria-label="@Model.Title">
+        <img src="@Model.Cover.Url" alt="@Model.Cover.Alt" loading="lazy" />
+        <img class="pcard__media-alt" src="@second" alt="" loading="lazy" aria-hidden="true" />
+        <div class="pcard__badges">
+            @if (Model.Exclusive) { <span class="badge badge--gold">Exclusivo</span> }
+            @if (Model.Purpose == ListingPurpose.Aluguel) { <span class="badge">Locação</span> }
+            else if (Model.Featured) { <span class="badge">Destaque</span> }
+        </div>
+        <span class="pcard__ref">@Model.Reference</span>
+    </a>
+    <button class="pcard__fav" type="button" data-fav="@Model.Id" aria-label="Favoritar"><svg class="ico"><use href="#i-heart" /></svg></button>
+    <div class="pcard__body">
+        <div class="pcard__meta"><svg class="ico"><use href="#i-pin" /></svg>@Model.Neighborhood · @Model.City</div>
+        <h3 class="pcard__title"><a href="/imoveis/@Model.Slug">@Model.Title</a></h3>
+        <p class="pcard__tagline">@Model.Tagline</p>
+        <div class="pcard__specs">
+            @if (Model.Bedrooms > 0) { <span><svg class="ico"><use href="#i-bed" /></svg>@Model.Bedrooms</span> }
+            @if (Model.Bathrooms > 0) { <span><svg class="ico"><use href="#i-bath" /></svg>@Model.Bathrooms</span> }
+            @if (Model.Garages > 0) { <span><svg class="ico"><use href="#i-car" /></svg>@Model.Garages</span> }
+            @if (Model.SizeLabel != "") { <span><svg class="ico"><use href="#i-area" /></svg>@Model.SizeLabel</span> }
+        </div>
+        <div class="pcard__foot">
+            <strong class="pcard__price">@Model.PriceLabel</strong>
+            <a class="link-arrow" href="/imoveis/@Model.Slug">Ver imóvel <svg class="ico"><use href="#i-arrow" /></svg></a>
+        </div>
+    </div>
+</article>

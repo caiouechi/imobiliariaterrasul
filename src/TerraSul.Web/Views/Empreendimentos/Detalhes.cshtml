@@ -1,0 +1,73 @@
+@model TerraSul.Web.Models.Development
+@{
+    ViewData["Title"] = Model.Name;
+    ViewData["Description"] = Model.Tagline;
+    ViewData["OgImage"] = Model.Cover;
+    ViewData["BodyClass"] = "page-dev";
+    var props = (IReadOnlyList<Property>)ViewBag.Properties;
+    var wa = SiteInfo.WhatsAppLink($"Olá, Terra Sul! Tenho interesse no {Model.Name}. Podem me enviar a tabela de lotes?");
+}
+
+<section class="page-hero page-hero--tall" style="--bg:url('/img/mood/luz-textura.webp')">
+    <div class="container">
+        <a class="crumb" asp-controller="Empreendimentos" asp-action="Index"><svg class="ico" style="transform:rotate(180deg)"><use href="#i-arrow" /></svg> Empreendimentos</a>
+        <span class="eyebrow">@Model.Location · @Model.Status</span>
+        <h1 class="h1">@Model.Name</h1>
+        <p class="lead">@Model.Tagline</p>
+        <a class="btn btn--gold" href="@wa" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa" /></svg>Solicitar tabela de lotes</a>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container dev-detail">
+        <div data-aos="fade-up">
+            <h2 class="h3">O empreendimento</h2>
+            <p class="lead">@Model.Description</p>
+            <ul class="checklist checklist--2">
+                @foreach (var h in Model.Highlights) { <li><svg class="ico"><use href="#i-check" /></svg>@h</li> }
+            </ul>
+        </div>
+        <div class="dev-detail__facts" data-aos="fade-left">
+            @if (Model.Conditions is { } cond) { <div><small>Condições</small><strong class="dev-cond">@cond</strong></div> }
+            <div><small>Status</small><strong>@Model.Status</strong></div>
+            <div><small>Localização</small><strong>@Model.Location</strong></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="swiper dev-gallery" id="devGallery">
+        <div class="swiper-wrapper">
+            @foreach (var g in Model.Gallery)
+            {
+                <div class="swiper-slide">
+                    <a class="glightbox" data-gallery="dev" href="@g.Url" data-title="@g.Alt"><img src="@g.Url" alt="@g.Alt" loading="lazy" /><span>@g.Alt</span></a>
+                </div>
+            }
+        </div>
+        <div class="swiper-pagination"></div>
+    </div>
+</section>
+
+@if (props.Count > 0)
+{
+    <section class="section">
+        <div class="container">
+            <div class="section__head">
+                <div><span class="eyebrow">Disponíveis</span><h2 class="h2">Imóveis no <em>@Model.Name</em></h2></div>
+                <a class="link-arrow" asp-controller="Imoveis" asp-action="Index" asp-route-bairro="@Model.Name">Ver todos <svg class="ico"><use href="#i-arrow" /></svg></a>
+            </div>
+            <div class="pgrid pgrid--3">
+                @foreach (var p in props) { <partial name="_PropertyCard" model="p" /> }
+            </div>
+        </div>
+    </section>
+}
+
+<section class="cta cta--compact" style="--bg:url('/img/mood/luz-interior.webp')">
+    <div class="cta__bg" data-parallax></div>
+    <div class="container cta__content">
+        <h2 class="h2">Garanta seu lote no <em>@Model.Name</em></h2>
+        <a class="btn btn--gold btn--lg" href="@wa" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa" /></svg>Falar com consultor</a>
+    </div>
+</section>

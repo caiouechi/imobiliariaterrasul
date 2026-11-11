@@ -1,0 +1,116 @@
+@model TerraSul.Web.Models.PropertyListViewModel
+@{
+    ViewData["Title"] = "Imóveis";
+    ViewData["BodyClass"] = "page-list";
+    var f = Model.Filter;
+}
+
+<section class="page-hero page-hero--short" style="--bg:url('/img/mood/luz-textura.webp')">
+    <div class="container">
+        <span class="eyebrow">Portfólio</span>
+        <h1 class="h1">Imóveis <em>selecionados</em></h1>
+        <p class="lead">Casas, coberturas, terrenos e fazendas no Sul do Maranhão, escolhidos um a um.</p>
+    </div>
+</section>
+
+<section class="listing container">
+    <aside class="filters" id="filters">
+        <form id="filterForm" asp-controller="Imoveis" asp-action="Index" method="get" data-grid-url="@Url.Action("Grid", "Imoveis")">
+            <div class="filters__head">
+                <h3>Filtrar</h3>
+                <button type="button" class="link-reset" id="filterReset">Limpar</button>
+            </div>
+
+            <div class="filters__group">
+                <div class="seg" role="radiogroup">
+                    <label><input type="radio" name="finalidade" value="" @(f.Purpose is null ? "checked" : "") /><span>Todos</span></label>
+                    <label><input type="radio" name="finalidade" value="Venda" @(f.Purpose == ListingPurpose.Venda ? "checked" : "") /><span>Comprar</span></label>
+                    <label><input type="radio" name="finalidade" value="Aluguel" @(f.Purpose == ListingPurpose.Aluguel ? "checked" : "") /><span>Alugar</span></label>
+                </div>
+            </div>
+
+            <div class="filters__group">
+                <label class="filters__label" for="q">Buscar</label>
+                <input class="input" id="q" type="search" name="q" value="@f.Query" placeholder="Nome, bairro ou referência" />
+            </div>
+
+            <div class="filters__group">
+                <label class="filters__label" for="tipo">Tipo</label>
+                <select class="input" id="tipo" name="tipo">
+                    <option value="">Todos</option>
+                    @foreach (var t in Enum.GetValues<PropertyType>()) { <option value="@t" selected="@(f.Type == t)">@t</option> }
+                </select>
+            </div>
+
+            <div class="filters__group">
+                <label class="filters__label" for="bairro">Bairro / Condomínio</label>
+                <select class="input" id="bairro" name="bairro">
+                    <option value="">Todos</option>
+                    @foreach (var n in Model.Neighborhoods) { <option value="@n" selected="@(f.Neighborhood == n)">@n</option> }
+                </select>
+            </div>
+
+            <div class="filters__group">
+                <label class="filters__label">Faixa de preço</label>
+                <div class="range" id="priceRange" data-min="@Model.PriceFloor" data-max="@Model.PriceCeiling" data-start-min="@(f.MinPrice ?? Model.PriceFloor)" data-start-max="@(f.MaxPrice ?? Model.PriceCeiling)"></div>
+                <div class="range__values"><span id="priceMinLbl"></span><span id="priceMaxLbl"></span></div>
+                <input type="hidden" name="min" id="min" value="@f.MinPrice" />
+                <input type="hidden" name="max" id="max" value="@f.MaxPrice" />
+            </div>
+
+            <div class="filters__group">
+                <label class="filters__label">Quartos</label>
+                <div class="chips" data-chips="quartos">
+                    @foreach (var n in new[] { 1, 2, 3, 4, 5 })
+                    {
+                        <label><input type="radio" name="quartos" value="@n" @(f.MinBedrooms == n ? "checked" : "") /><span>@n+</span></label>
+                    }
+                </div>
+            </div>
+
+            <div class="filters__group">
+                <label class="filters__label">Vagas</label>
+                <div class="chips" data-chips="vagas">
+                    @foreach (var n in new[] { 1, 2, 3, 4 })
+                    {
+                        <label><input type="radio" name="vagas" value="@n" @(f.MinGarages == n ? "checked" : "") /><span>@n+</span></label>
+                    }
+                </div>
+            </div>
+
+            <div class="filters__group">
+                <label class="filters__label" for="area">Área mínima (m²)</label>
+                <input class="input" id="area" type="number" name="area" min="0" step="10" value="@f.MinArea" placeholder="ex. 200" />
+            </div>
+
+            <input type="hidden" name="ordem" id="ordem" value="@f.Sort" />
+            <input type="hidden" name="view" id="view" value="@f.View" />
+            <button class="btn btn--gold filters__submit" type="submit">Aplicar filtros</button>
+        </form>
+    </aside>
+
+    <div class="listing__main">
+        <div class="toolbar">
+            <button class="btn btn--outline btn--sm toolbar__filters" type="button" id="filtersToggle">Filtros</button>
+            <div class="toolbar__right">
+                <label class="toolbar__sort">
+                    <span>Ordenar</span>
+                    <select id="sortSelect">
+                        <option value="destaque" selected="@(f.Sort == "destaque")">Destaques</option>
+                        <option value="menor-preco" selected="@(f.Sort == "menor-preco")">Menor preço</option>
+                        <option value="maior-preco" selected="@(f.Sort == "maior-preco")">Maior preço</option>
+                        <option value="maior-area" selected="@(f.Sort == "maior-area")">Maior área</option>
+                        <option value="recentes" selected="@(f.Sort == "recentes")">Mais recentes</option>
+                    </select>
+                </label>
+                <div class="view-toggle" role="group" aria-label="Visualização">
+                    <button type="button" data-view="grid" class="@(f.View != "list" ? "is-active" : "")" aria-label="Grade"><svg class="ico"><use href="#i-grid" /></svg></button>
+                    <button type="button" data-view="list" class="@(f.View == "list" ? "is-active" : "")" aria-label="Lista"><svg class="ico"><use href="#i-list" /></svg></button>
+                </div>
+            </div>
+        </div>
+        <div id="results" class="results" aria-live="polite">
+            <partial name="_PropertyGrid" model="Model" />
+        </div>
+    </div>
+</section>

@@ -1,0 +1,163 @@
+@model TerraSul.Web.Models.PropertyDetailsViewModel
+@{
+    var p = Model.Property;
+    ViewData["Title"] = p.Title;
+    ViewData["Description"] = p.Tagline + " · " + p.Neighborhood + ", " + p.City;
+    ViewData["OgImage"] = p.Cover.Url;
+    ViewData["BodyClass"] = "page-detail";
+    var wa = SiteInfo.WhatsAppLink($"Olá, Terra Sul! Tenho interesse no imóvel {p.Reference} – {p.Title}. Podemos conversar?");
+}
+
+<section class="gallery">
+    <div class="swiper gallery__main" id="galleryMain">
+        <div class="swiper-wrapper">
+            @foreach (var img in p.Images)
+            {
+                <div class="swiper-slide">
+                    <a class="glightbox" data-gallery="imovel" href="@img.Url" data-title="@img.Alt" style="--img:url('@img.Url')"><img src="@img.Url" alt="@img.Alt" /></a>
+                </div>
+            }
+        </div>
+        <div class="gallery__ui container">
+            <a class="crumb" asp-controller="Imoveis" asp-action="Index"><svg class="ico" style="transform:rotate(180deg)"><use href="#i-arrow" /></svg> Voltar aos imóveis</a>
+            <div class="gallery__tools">
+                <span class="gallery__count"><b class="gallery__cur">1</b> / @p.Images.Count</span>
+                <button type="button" class="gallery__btn gal-prev" aria-label="Anterior"><svg class="ico" style="transform:rotate(180deg)"><use href="#i-arrow" /></svg></button>
+                <button type="button" class="gallery__btn gal-next" aria-label="Próxima"><svg class="ico"><use href="#i-arrow" /></svg></button>
+                <button type="button" class="gallery__btn" id="galleryExpand" aria-label="Tela cheia"><svg class="ico"><use href="#i-expand" /></svg></button>
+            </div>
+        </div>
+    </div>
+    <div class="swiper gallery__thumbs container" id="galleryThumbs">
+        <div class="swiper-wrapper">
+            @foreach (var img in p.Images)
+            {
+                <div class="swiper-slide"><img src="@img.Url" alt="" loading="lazy" /></div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="detail container">
+    <div class="detail__main">
+        <header class="detail__head" data-aos="fade-up">
+            <div class="detail__badges">
+                @if (p.Exclusive) { <span class="badge badge--gold">Exclusivo</span> }
+                <span class="badge">@p.TypeLabel</span>
+                <span class="badge badge--line">@p.Reference</span>
+            </div>
+            <h1 class="h1">@p.Title</h1>
+            <p class="lead">@p.Tagline</p>
+            <div class="detail__loc"><svg class="ico"><use href="#i-pin" /></svg>@p.Neighborhood · @p.City, @p.State</div>
+        </header>
+
+        <div class="specs" data-aos="fade-up">
+            @if (p.Bedrooms > 0) { <div class="spec"><svg class="ico"><use href="#i-bed" /></svg><strong>@p.Bedrooms</strong><span>quartos</span></div> }
+            @if (p.Suites > 0) { <div class="spec"><svg class="ico"><use href="#i-bed" /></svg><strong>@p.Suites</strong><span>suítes</span></div> }
+            @if (p.Bathrooms > 0) { <div class="spec"><svg class="ico"><use href="#i-bath" /></svg><strong>@p.Bathrooms</strong><span>banheiros</span></div> }
+            @if (p.Garages > 0) { <div class="spec"><svg class="ico"><use href="#i-car" /></svg><strong>@p.Garages</strong><span>vagas</span></div> }
+            @if (p.Area > 0) { <div class="spec"><svg class="ico"><use href="#i-area" /></svg><strong>@p.Area.ToString("N0")</strong><span>m² construídos</span></div> }
+            @if (p.LandArea is { } la) { <div class="spec"><svg class="ico"><use href="#i-area" /></svg><strong>@(la >= 10_000 ? (la / 10_000m).ToString("N0") + " ha" : la.ToString("N0"))</strong><span>@(la >= 10_000 ? "de terra" : "m² de terreno")</span></div> }
+        </div>
+
+        <div class="detail__section" data-aos="fade-up">
+            <h2 class="h3">Sobre o imóvel</h2>
+            <p>@p.Description</p>
+        </div>
+
+        <div class="detail__section" data-aos="fade-up">
+            <h2 class="h3">Diferenciais</h2>
+            <ul class="checklist checklist--2">
+                @foreach (var ft in p.Features) { <li><svg class="ico"><use href="#i-check" /></svg>@ft</li> }
+            </ul>
+        </div>
+
+        @if (p.Purpose == ListingPurpose.Venda)
+        {
+            <div class="detail__section simulator" id="simulator" data-price="@p.Price" data-aos="fade-up">
+                <h2 class="h3">Simule o financiamento</h2>
+                <p class="muted">Estimativa pela tabela Price. Condições reais dependem da análise bancária.</p>
+                <div class="sim__grid">
+                    <div class="sim__ctrl">
+                        <div class="sim__lbl"><span>Entrada</span><strong id="simDownLbl">30%</strong></div>
+                        <div class="range" id="simDown"></div>
+                    </div>
+                    <div class="sim__ctrl">
+                        <div class="sim__lbl"><span>Prazo</span><strong id="simTermLbl">360 meses</strong></div>
+                        <div class="range" id="simTerm"></div>
+                    </div>
+                    <div class="sim__ctrl">
+                        <div class="sim__lbl"><span>Taxa anual</span><strong id="simRateLbl">10,5%</strong></div>
+                        <div class="range" id="simRate"></div>
+                    </div>
+                </div>
+                <div class="sim__out">
+                    <div><small>Valor financiado</small><strong id="simFinanced">—</strong></div>
+                    <div class="sim__out-main"><small>Parcela estimada</small><strong id="simInstallment">—</strong></div>
+                    <div><small>Entrada</small><strong id="simDownValue">—</strong></div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Development is { } dev)
+        {
+            <a class="dev-strip" href="/empreendimentos/@dev.Slug" data-aos="fade-up">
+                <img src="@dev.Cover" alt="@dev.Name" loading="lazy" />
+                <div>
+                    <span class="eyebrow">Empreendimento</span>
+                    <strong>@dev.Name</strong>
+                    <p>@dev.Tagline</p>
+                </div>
+                <svg class="ico"><use href="#i-arrow" /></svg>
+            </a>
+        }
+
+        <div class="detail__section" data-aos="fade-up">
+            <h2 class="h3">Localização</h2>
+            <div class="map">
+                <iframe title="Mapa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=@Uri.EscapeDataString(p.Neighborhood + ", " + p.City + ", " + p.State)&z=14&output=embed"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <aside class="detail__side">
+        <div class="side-card" id="sideCard">
+            <small class="side-card__label">@(p.Purpose == ListingPurpose.Aluguel ? "Locação mensal" : "Valor de venda")</small>
+            <strong class="side-card__price">@p.PriceLabel</strong>
+            @if (p.PricePerSqm != "") { <span class="side-card__sqm">@p.PricePerSqm</span> }
+            <a class="btn btn--gold btn--block" href="@wa" target="_blank" rel="noopener"><svg class="ico"><use href="#i-wa" /></svg>Falar sobre este imóvel</a>
+            <form class="side-form" asp-controller="Contato" asp-action="Enviar" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Imovel" value="@p.Reference – @p.Title" />
+                <input type="hidden" name="Interesse" value="@(p.Purpose == ListingPurpose.Aluguel ? "Alugar" : "Comprar")" />
+                <input class="input" name="Nome" placeholder="Seu nome" required />
+                <input class="input" name="Telefone" placeholder="WhatsApp" required />
+                <textarea class="input" name="Mensagem" rows="3" placeholder="Gostaria de agendar uma visita…"></textarea>
+                <button class="btn btn--outline btn--block" type="submit">Solicitar visita</button>
+            </form>
+            <div class="side-card__share">
+                <button type="button" class="share-btn" data-share="@p.Title" data-url=""><svg class="ico"><use href="#i-share" /></svg>Compartilhar</button>
+                <button type="button" class="share-btn" data-fav="@p.Id"><svg class="ico"><use href="#i-heart" /></svg>Favoritar</button>
+            </div>
+            <div class="side-card__agent">
+                <div class="side-card__avatar"><partial name="_Logo" /></div>
+                <div><strong>Consultores Terra Sul</strong><span>@SiteInfo.Creci · Atendimento reservado</span></div>
+            </div>
+        </div>
+    </aside>
+</section>
+
+@if (Model.Similar.Count > 0)
+{
+    <section class="section similar">
+        <div class="container">
+            <div class="section__head">
+                <div><span class="eyebrow">Você também pode gostar</span><h2 class="h2">Imóveis <em>semelhantes</em></h2></div>
+                <a class="link-arrow" asp-controller="Imoveis" asp-action="Index">Ver todos <svg class="ico"><use href="#i-arrow" /></svg></a>
+            </div>
+            <div class="pgrid pgrid--3">
+                @foreach (var s in Model.Similar) { <partial name="_PropertyCard" model="s" /> }
+            </div>
+        </div>
+    </section>
+}

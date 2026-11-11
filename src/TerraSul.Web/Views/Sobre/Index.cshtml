@@ -1,0 +1,90 @@
+@model IReadOnlyList<TerraSul.Web.Models.Testimonial>
+@{
+    ViewData["Title"] = "A Terra Sul";
+    ViewData["BodyClass"] = "page-about";
+}
+
+<section class="page-hero" style="--bg:url('/img/mood/luz-textura.webp')">
+    <div class="container">
+        <span class="eyebrow">Desde 2004 em Balsas</span>
+        <h1 class="h1">Mais de 20 anos realizando <em>sonhos</em></h1>
+        <p class="lead">Aqui você encontra as melhores oportunidades em imóveis do Sul do Maranhão.</p>
+    </div>
+</section>
+
+<section class="section about">
+    <div class="container about__grid">
+        <div data-aos="fade-right">
+            <span class="eyebrow">Nossa história</span>
+            <h2 class="h2">Uma imobiliária que cresceu <em>junto</em> com Balsas</h2>
+            <p class="lead">A Terra Sul nasceu quando Balsas começava a se transformar na capital do agronegócio do Maranhão. Acompanhamos cada ciclo da cidade e aprendemos, negócio a negócio, o que faz um imóvel valer a pena.</p>
+            <p>Hoje somos referência em imóveis de alto padrão na região, com portfólio que vai de residências em condomínios fechados a fazendas produtivas, sempre com o mesmo cuidado: apresentar apenas o que vale o seu tempo, com segurança jurídica e atendimento reservado.</p>
+        </div>
+        <div class="about__media" data-aos="fade-left">
+            <img src="/img/real/prime-rio-entregue.webp" alt="Residência entregue pela Construtora Terra Sul no Prime Rio" loading="lazy" />
+            <img src="/img/real/paulo-teixeira.webp" alt="Paulo Teixeira, consultor imobiliário" loading="lazy" />
+        </div>
+    </div>
+</section>
+
+<section class="section section--dark" style="--bg:url('/img/mood/luz-textura.webp')">
+    <div class="container">
+        <div class="section__head section__head--center" data-aos="fade-up">
+            <span class="eyebrow">Como trabalhamos</span>
+            <h2 class="h2">Quatro pilares, <em>um padrão</em></h2>
+        </div>
+        <div class="pillars">
+            <div class="pillar" data-aos="fade-up"><span>01</span><h3>Curadoria</h3><p>Cada imóvel do portfólio passa por avaliação técnica, documental e de potencial de valorização antes de ser apresentado.</p></div>
+            <div class="pillar" data-aos="fade-up" data-aos-delay="100"><span>02</span><h3>Discrição</h3><p>Visitas privadas, imóveis off-market e negociações conduzidas com a reserva que clientes de alto padrão esperam.</p></div>
+            <div class="pillar" data-aos="fade-up" data-aos-delay="200"><span>03</span><h3>Segurança</h3><p>Assessoria jurídica completa, due diligence e acompanhamento cartorial do início ao fim.</p></div>
+            <div class="pillar" data-aos="fade-up" data-aos-delay="300"><span>04</span><h3>Relacionamento</h3><p>Mais de 20 anos de confiança construída com famílias, investidores e produtores do Sul do Maranhão.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section timeline">
+    <div class="container">
+        <div class="section__head section__head--center" data-aos="fade-up">
+            <span class="eyebrow">Trajetória</span>
+            <h2 class="h2">Duas décadas de <em>conquistas</em></h2>
+        </div>
+        <ol class="tl">
+            <li data-aos="fade-up"><b>2004</b><h4>Fundação em Balsas</h4><p>A Terra Sul abre as portas com foco em imóveis residenciais e rurais.</p></li>
+            <li data-aos="fade-up" data-aos-delay="100"><b>2012</b><h4>Alto padrão</h4><p>Especialização em residências e condomínios fechados de alto padrão.</p></li>
+            <li data-aos="fade-up" data-aos-delay="200"><b>2018</b><h4>Empreendimentos próprios</h4><p>Lançamento comercial de condomínios como Prime Rio e Prime Ville.</p></li>
+            <li data-aos="fade-up" data-aos-delay="300"><b>2024</b><h4>+20 anos</h4><p>Mais de 1.200 negócios realizados e a maior comunidade imobiliária da região no Instagram.</p></li>
+        </ol>
+    </div>
+</section>
+
+<section class="section section--dark testimonials">
+    <div class="container">
+        <div class="section__head section__head--center" data-aos="fade-up">
+            <span class="eyebrow">Depoimentos</span>
+            <h2 class="h2">O que dizem nossos <em>clientes</em></h2>
+        </div>
+        <div class="swiper testi__swiper" id="testiSwiper">
+            <div class="swiper-wrapper">
+                @foreach (var t in Model)
+                {
+                    <div class="swiper-slide">
+                        <blockquote class="testi">
+                            <svg class="testi__q"><use href="#i-quote" /></svg>
+                            <p>@t.Quote</p>
+                            <footer><strong>@t.Name</strong><span>@t.Role</span></footer>
+                        </blockquote>
+                    </div>
+                }
+            </div>
+            <div class="swiper-pagination testi__pag"></div>
+        </div>
+    </div>
+</section>
+
+<section class="cta cta--compact" style="--bg:url('/img/mood/luz-arquitetura.webp')">
+    <div class="cta__bg" data-parallax></div>
+    <div class="container cta__content">
+        <h2 class="h2">Quer vender ou comprar com a <em>Terra Sul</em>?</h2>
+        <a class="btn btn--gold btn--lg" asp-controller="Contato" asp-action="Index">Fale conosco</a>
+    </div>
+</section>

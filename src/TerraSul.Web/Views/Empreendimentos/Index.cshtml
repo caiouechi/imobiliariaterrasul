@@ -1,0 +1,43 @@
+@model IReadOnlyList<TerraSul.Web.Models.Development>
+@{
+    ViewData["Title"] = "Empreendimentos";
+    ViewData["BodyClass"] = "page-devs";
+}
+
+<section class="page-hero" style="--bg:url('/img/mood/luz-textura.webp')">
+    <div class="container">
+        <span class="eyebrow">Empreendimentos</span>
+        <h1 class="h1">Endereços <em>assinados</em> Terra Sul</h1>
+        <p class="lead">Condomínios e bairros planejados que redefinem o morar bem no Sul do Maranhão.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container dev-list">
+        @for (var i = 0; i < Model.Count; i++)
+        {
+            var d = Model[i];
+            <article class="dev-row @(i % 2 == 1 ? "dev-row--flip" : "")" data-aos="fade-up">
+                <a class="dev-row__media" href="/empreendimentos/@d.Slug">
+                    <div class="swiper dev-row__swiper">
+                        <div class="swiper-wrapper">
+                            @foreach (var g in d.Gallery) { <div class="swiper-slide"><img src="@g.Url" alt="@g.Alt" loading="lazy" /></div> }
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                    <span class="badge badge--gold">@d.Status</span>
+                </a>
+                <div class="dev-row__body">
+                    <span class="eyebrow">0@(i + 1) · @d.Location</span>
+                    <h2 class="h2">@d.Name</h2>
+                    <p class="lead">@d.Tagline</p>
+                    <p>@d.Description</p>
+                    <div class="dev__foot">
+                        @if (d.Conditions is { } cond) { <div><small>Condições</small><strong class="dev-cond">@cond</strong></div> }
+                        <a class="btn btn--gold" href="/empreendimentos/@d.Slug">Conhecer</a>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+</section>

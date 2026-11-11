@@ -1,0 +1,21 @@
+@model TerraSul.Web.Models.PropertyListViewModel
+<div class="results-head">
+    <span class="results-count"><strong>@Model.Total</strong> @(Model.Total == 1 ? "imóvel encontrado" : "imóveis encontrados")</span>
+</div>
+@if (Model.Items.Count == 0)
+{
+    <div class="empty">
+        <h3>Nenhum imóvel com esses critérios.</h3>
+        <p>Ajuste os filtros ou fale com um consultor: temos oportunidades fora do portfólio público.</p>
+        <a class="btn btn--gold" href="@SiteInfo.WhatsAppLink("Olá! Procuro um imóvel e não encontrei no site.")" target="_blank" rel="noopener">Falar com consultor</a>
+    </div>
+}
+else
+{
+    <div class="pgrid @(Model.Filter.View == "list" ? "pgrid--list" : "")">
+        @foreach (var p in Model.Items)
+        {
+            <partial name="_PropertyCard" model="p" />
+        }
+    </div>
+}
