@@ -128,6 +128,115 @@
     try { if (navigator.share) await navigator.share(data); else { await navigator.clipboard.writeText(location.href); b.classList.add('is-active'); b.lastChild.textContent = 'Link copiado'; } } catch { }
   });
 
+  /* Custom dropdowns (progressive enhancement of <select>) ------ */
+  (function enhanceSelects() {
+    const selects = $$('select:not([multiple]):not([data-native])');
+    if (!selects.length) return;
+    let openPanel = null;
+    const closeOpen = () => { if (openPanel) openPanel.close(); };
+    document.addEventListener('click', e => { if (openPanel && !openPanel.root.contains(e.target) && !openPanel.panel.contains(e.target)) closeOpen(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeOpen(); });
+    window.addEventListener('resize', closeOpen);
+    window.addEventListener('scroll', () => openPanel && openPanel.place(), { passive: true, capture: true });
+
+    selects.forEach((sel, n) => {
+      const root = document.createElement('div');
+      root.className = 'nsel' + (sel.classList.contains('input') ? ' nsel--input' : '') + (sel.closest('.toolbar__sort') ? ' nsel--line' : '') + (sel.closest('.search-bar__field') ? ' nsel--bare' : '');
+      sel.parentNode.insertBefore(root, sel);
+      root.appendChild(sel);
+      sel.classList.add('nsel__native'); sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true');
+
+      const id = 'nsel-' + n;
+      const trigger = document.createElement('button');
+      trigger.type = 'button'; trigger.className = 'nsel__trigger';
+      trigger.setAttribute('aria-haspopup', 'listbox'); trigger.setAttribute('aria-expanded', 'false'); trigger.setAttribute('aria-controls', id);
+      const lbl = sel.closest('.search-bar__field, .filters__group, .toolbar__sort')?.querySelector('label, .filters__label, span');
+      if (lbl) trigger.setAttribute('aria-label', lbl.textContent.trim());
+      trigger.innerHTML = '<span class="nsel__value"></span><svg class="nsel__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      root.appendChild(trigger);
+
+      const panel = document.createElement('ul');
+      panel.className = 'nsel__panel'; panel.id = id; panel.setAttribute('role', 'listbox'); panel.tabIndex = -1;
+      const items = Array.from(sel.options).map((o, i) => {
+        const li = document.createElement('li');
+        li.className = 'nsel__opt'; li.setAttribute('role', 'option'); li.dataset.i = i;
+        li.innerHTML = '<span>' + o.textContent + '</span><svg class="nsel__check" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        li.addEventListener('click', () => { choose(i); api.close(); trigger.focus(); });
+        li.addEventListener('mousemove', () => focusItem(i, false));
+        panel.appendChild(li); return li;
+      });
+
+      let active = sel.selectedIndex;
+      const paint = () => {
+        const v = $('.nsel__value', trigger); v.textContent = sel.options[sel.selectedIndex]?.textContent || '';
+        root.classList.toggle('is-placeholder', sel.selectedIndex === 0 && sel.options[0].value === '');
+        items.forEach((li, i) => { li.classList.toggle('is-selected', i === sel.selectedIndex); li.setAttribute('aria-selected', String(i === sel.selectedIndex)); });
+      };
+      const focusItem = (i, scroll = true) => {
+        active = Math.max(0, Math.min(items.length - 1, i));
+        items.forEach((li, k) => li.classList.toggle('is-active', k === active));
+        if (scroll) items[active].scrollIntoView({ block: 'nearest' });
+      };
+      const choose = i => {
+        if (sel.selectedIndex === i) return;
+        sel.selectedIndex = i; paint();
+        sel.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      const api = {
+        root, panel,
+        place() {
+          const r = trigger.getBoundingClientRect(), vh = window.innerHeight;
+          const h = Math.min(panel.scrollHeight + 2, 320);
+          const below = vh - r.bottom - 12;
+          const up = below < h && r.top > below;
+          panel.style.width = Math.max(r.width, 220) + 'px';
+          panel.style.left = Math.min(r.left, window.innerWidth - Math.max(r.width, 220) - 8) + 'px';
+          panel.style.maxHeight = (up ? r.top - 12 : below) + 'px';
+          panel.style.top = up ? '' : r.bottom + 6 + 'px';
+          panel.style.bottom = up ? vh - r.top + 6 + 'px' : '';
+          panel.classList.toggle('nsel__panel--up', up);
+        },
+        open() {
+          if (openPanel && openPanel !== api) openPanel.close();
+          document.body.appendChild(panel); api.place();
+          root.classList.add('is-open'); trigger.setAttribute('aria-expanded', 'true');
+          requestAnimationFrame(() => panel.classList.add('is-open'));
+          focusItem(sel.selectedIndex); openPanel = api;
+        },
+        close() {
+          if (openPanel !== api) return;
+          panel.classList.remove('is-open'); root.classList.remove('is-open'); trigger.setAttribute('aria-expanded', 'false');
+          setTimeout(() => { if (!panel.classList.contains('is-open')) panel.remove(); }, 220);
+          openPanel = null;
+        }
+      };
+
+      trigger.addEventListener('click', () => root.classList.contains('is-open') ? api.close() : api.open());
+      let typed = '', typeTimer;
+      trigger.addEventListener('keydown', e => {
+        const open = root.classList.contains('is-open');
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (!open) { api.open(); return; }
+          focusItem(active + (e.key === 'ArrowDown' ? 1 : -1));
+        } else if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (open) { choose(active); api.close(); } else api.open();
+        } else if (e.key === 'Home' && open) { e.preventDefault(); focusItem(0); }
+        else if (e.key === 'End' && open) { e.preventDefault(); focusItem(items.length - 1); }
+        else if (e.key === 'Tab') { api.close(); }
+        else if (e.key.length === 1 && /\S/.test(e.key)) {
+          clearTimeout(typeTimer); typed += e.key.toLowerCase(); typeTimer = setTimeout(() => typed = '', 600);
+          const hit = items.findIndex(li => li.textContent.trim().toLowerCase().startsWith(typed));
+          if (hit > -1) { if (open) focusItem(hit); else choose(hit); }
+        }
+      });
+      sel.addEventListener('change', paint);
+      sel.form?.addEventListener('reset', () => setTimeout(paint, 0));
+      paint();
+    });
+  })();
+
   /* Listing filters (AJAX) -------------------------------------- */
   const form = $('#filterForm');
   if (form) {
